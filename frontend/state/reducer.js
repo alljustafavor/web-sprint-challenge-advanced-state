@@ -57,17 +57,13 @@ function form(state = initialFormState, action) {
         newTrueAnswer: action.payload.newTrueAnswer,
         newFalseAnswer: action.payload.newFalseAnswer
       }
-    case RESET_FORM:
-      return {
-        newQuestion: "",
-        newTrueAnswer: "",
-        newFalseAnswer: ""
-      }
     case INPUT_CHANGE:
       return {
         ...state,
         ...action.payload
       }
+    case RESET_FORM:
+      return initialFormState;
     default:
       return (state)
   }
