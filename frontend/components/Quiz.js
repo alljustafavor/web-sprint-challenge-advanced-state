@@ -1,31 +1,46 @@
 import React from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { fetchQuiz, postAnswer, selectAnswer } from '../state/action-creators'
 
-export default function Quiz(props) {
+export default function Quiz() {
+  const dispatch = useDispatch()
+
+  const selectedAnswer = useSelector(state => state.selectedAnswer)
+  const quiz = useSelector(state => state.quiz);
+
+  React.useEffect(() => {
+    dispatch(fetchQuiz())
+  }, [dispatch])
+
+  const handleSelectAnswer = (answer) => {
+    dispatch(selectAnswer(answer))
+  }
+
+  const handleSubmitAnswer = () => {
+    dispatch(postAnswer(selectedAnswer, quiz.quiz_id));
+    dispatch(fetchQuiz());
+  }
+
   return (
     <div id="wrapper">
       {
-        // quiz already in state? Let's use that, otherwise render "Loading next quiz..."
-        true ? (
+        quiz ? (
           <>
-            <h2>What is a closure?</h2>
+            <h2>{quiz.question}</h2>
 
             <div id="quizAnswers">
-              <div className="answer selected">
-                A function
-                <button>
-                  SELECTED
-                </button>
-              </div>
+              {quiz.answers.map((answer, index) => (
+                <div key={index} className={`answer ${selectedAnswer === answer ? 'selected' : ''}`}>
+                  {answer.text}
+                  <button onClick={() => handleSelectAnswer(answer)}>
+                    {selectedAnswer === answer ? 'SELECTED' : 'Select'}
+                  </button>
+                </div>
+              ))}
 
-              <div className="answer">
-                An elephant
-                <button>
-                  Select
-                </button>
-              </div>
+              <button id="submitAnswerBtn" onClick={handleSubmitAnswer} disabled={!selectedAnswer}>Submit answer</button>
+
             </div>
-
-            <button id="submitAnswerBtn">Submit answer</button>
           </>
         ) : 'Loading next quiz...'
       }
