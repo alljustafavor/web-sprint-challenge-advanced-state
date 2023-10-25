@@ -41,47 +41,39 @@ export const resetForm = () => ({
 });
 
 
-export function fetchQuiz() {
-  return function (dispatch) {
-    const localQuiz = localStorage.getItem('quiz');
-    if (localQuiz) {
-      dispatch(setQuiz(JSON.parse(localQuiz)));
-    } else {
-      axios.get('http://localhost:9000/api/quiz/next')
-        .then(response => {
-          localStorage.setItem('quiz', JSON.stringify(response.data));
-          dispatch(setQuiz(response.data));
-        })
-        .catch(error => {
-          console.error(error);
-          dispatch(setMessage());
-        });
-    }
-  }
-}
-
-export function postAnswer(answer, quiz_id) {
-  return function (dispatch) {
-    axios.post('http://localhost:9000/api/quiz/answer', {
-      answer_id: answer.answer_id,
-      quiz_id: quiz_id,
-    })
+export const fetchQuiz = () => {
+  return (dispatch) => {
+    axios.get('http://localhost:9000/api/quiz/next')
       .then(response => {
-        if (response.data.message === "Nice job! That was the correct answer") {
-          dispatch(setMessage(response.data.message));
-        } else {
-          dispatch(setMessage(response.data.message));
-        }
-        localStorage.removeItem('quiz');
-        dispatch(fetchQuiz());
+        dispatch({
+          type: SET_QUIZ_INTO_STATE,
+          payload: response.data
+        });
       })
       .catch(error => {
         console.error(error);
-        dispatch(setMessage('There was an error with your request'));
+        dispatch(setMessage());
       });
   }
 }
 
+export function postAnswer(answer, quiz_id) {
+  return async function (dispatch) {
+    try {
+      const response = await axios.post('http://localhost:9000/api/quiz/answer', {
+        answer_id: answer.answer_id,
+        quiz_id: quiz_id,
+      });
+      dispatch(setMessage(response.data.message));
+      dispatch(selectAnswer(null));
+      dispatch(setQuiz(null));
+      await dispatch(fetchQuiz());
+    } catch (error) {
+      console.error(error);
+      dispatch(setMessage('There was an error with your request'));
+    }
+  }
+}
 export function postQuiz(quiz) {
   return function (dispatch) {
     axios.post('http://localhost:9000/api/quiz/new', {
@@ -90,7 +82,6 @@ export function postQuiz(quiz) {
       false_answer_text: quiz.newFalseAnswer,
     })
       .then(response => {
-        console.log(response)
         dispatch(setQuiz(response.data));
         dispatch(setMessage(`Congrats: "${response.data.question}" is a great question!`))
         dispatch(resetForm())

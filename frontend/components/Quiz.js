@@ -18,7 +18,6 @@ export default function Quiz() {
 
   const handleSubmitAnswer = () => {
     dispatch(postAnswer(selectedAnswer, quiz.quiz_id));
-    dispatch(fetchQuiz());
   }
 
   return (

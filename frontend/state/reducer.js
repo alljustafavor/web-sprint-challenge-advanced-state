@@ -51,12 +51,16 @@ const initialFormState = {
 function form(state = initialFormState, action) {
   switch (action.type) {
     case SET_QUIZ_INTO_STATE:
-      return {
-        ...state,
-        newQuestion: action.payload.newQuestion,
-        newTrueAnswer: action.payload.newTrueAnswer,
-        newFalseAnswer: action.payload.newFalseAnswer
-      }
+  if (action.payload) {
+    return {
+      ...state,
+      newQuestion: action.payload.newQuestion,
+      newTrueAnswer: action.payload.newTrueAnswer,
+      newFalseAnswer: action.payload.newFalseAnswer
+    }
+  } else {
+    return state;
+  }
     case INPUT_CHANGE:
       return {
         ...state,

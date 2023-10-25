@@ -33,7 +33,7 @@ export function Form(props) {
   }
 
   const isDisabled = () => {
-    return !newQuestion.trim() || !newTrueAnswer.trim() || !newFalseAnswer.trim();
+    return !(newQuestion?.trim() && newTrueAnswer?.trim() && newFalseAnswer?.trim());
   }
 
 
